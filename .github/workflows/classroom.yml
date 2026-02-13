@@ -1,0 +1,39 @@
+name: Autograding Tests
+'on':
+- push
+- repository_dispatch
+permissions:
+  checks: write
+  actions: read
+  contents: read
+jobs:
+  run-autograding-tests:
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-classroom[bot]'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: Test redteam
+      id: test-redteam
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: Test redteam
+        setup-command: pip install -r requirements.txt
+        command: py -m tests.run_redteam.py --test-file tests.adversarial_inputs.txt
+        timeout: 2
+        max-score: 2
+    - name: Test redteam
+      id: test-redteam
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: Test redteam
+        setup-command: ''
+        command: py -m tests.run_redteam.py --test-file tests.adversarial_inputs.txt
+        timeout: 2
+        max-score: 2
+    - name: Autograding Reporter
+      uses: classroom-resources/autograding-grading-reporter@v1
+      env:
+        TEST-REDTEAM_RESULTS: "${{steps.test-redteam.outputs.result}}"
+      with:
+        runners: test-redteam,test-redteam
