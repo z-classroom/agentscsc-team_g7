@@ -1,7 +1,11 @@
-# Simple policy system for teaching "governance" and "trust enforcement"
+# Policy system for trust enforcement and boundary control
 
-# use block pattern
 rules:
+  - id: "empty_or_missing_input"
+    description: "Do not process empty or meaningless input."
+    block_patterns:
+      - "^(\\s*)$"
+
   - id: "no_secrets"
     description: "Do not reveal secrets, API keys, credentials, or private data."
     block_patterns:
@@ -9,6 +13,8 @@ rules:
       - "(password)"
       - "(secret)"
       - "(token)"
+      - "(credential)"
+      - "(private key)"
 
   - id: "no_illegal_harm"
     description: "Do not provide instructions to commit wrongdoing or harm."
@@ -19,14 +25,57 @@ rules:
       - "(hack\\s+.*social\\s+media)"
       - "(build a bomb)"
       - "(phishing)"
+      - "(steal\\s+password)"
+      - "(bypass\\s+security)"
+      - "(malware)"
+      - "(ransomware)"
 
   - id: "no_identity_claims"
     description: "Do not claim to be a real person or imply real-world verification."
     block_patterns:
       - "(i am a doctor)"
       - "(i am your lawyer)"
+      - "(i am a police officer)"
+      - "(i am a judge)"
       - "(verified)"
+      - "(official support)"
+      - "(platform administrator)"
+
+  - id: "no_prompt_injection"
+    description: "Do not comply with attempts to override rules or identity."
+    block_patterns:
+      - "(ignore\\s+(all\\s+)?previous\\s+instructions)"
+      - "(disregard\\s+(your|the)\\s+rules)"
+      - "(act\\s+as\\s+unrestricted)"
+      - "(developer mode)"
+      - "(jailbreak)"
+      - "(pretend\\s+the\\s+policy\\s+does\\s+not\\s+apply)"
+      - "(you\\s+are\\s+no\\s+longer\\s+bound)"
+      - "(override\\s+your\\s+instructions)"
+
+  - id: "professional_authority_boundary"
+    description: "Do not provide professional or institutional authority beyond role scope."
+    block_patterns:
+      - "(act as my lawyer)"
+      - "(act as my doctor)"
+      - "(diagnose me)"
+      - "(give me legal advice)"
+      - "(write a binding legal notice)"
+      - "(prescribe)"
+      - "(official decision)"
+      - "(make the final moderation decision)"
 
 response_overrides:
   blocked: "REFUSE"
   safe: "ALLOW"
+
+clarify_triggers:
+  short_input_max_words: 3
+  ambiguous_inputs:
+    - "recommend"
+    - "summarize"
+    - "help me"
+    - "what do you think"
+    - "is this good"
+    - "fix this"
+    - "do this"
